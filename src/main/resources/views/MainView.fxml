@@ -1,16 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-
 <?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="dk.easv.pmcexam.GUI.Controllers.MainController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
 
-    <Label fx:id="welcomeText"/>
-    <Button text="Hello!" onAction="#onHelloButtonClick"/>
-</VBox>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="381.0" prefWidth="745.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <TableView layoutX="410.0" layoutY="74.0" prefHeight="218.0" prefWidth="264.0">
+        <columns>
+          <TableColumn prefWidth="37.60003662109375" text="Score" />
+          <TableColumn prefWidth="160.79998779296875" text="Title" />
+            <TableColumn prefWidth="62.39996337890625" text="Genre" />
+        </columns>
+      </TableView>
+      <ListView layoutX="93.0" layoutY="74.0" prefHeight="218.0" prefWidth="180.0" />
+      <Label layoutX="93.0" layoutY="51.0" text="Genre" />
+      <Label layoutX="410.0" layoutY="51.0" text="Movies" />
+      <Button layoutX="410.0" layoutY="320.0" mnemonicParsing="false" text="Add Movie" />
+      <Button layoutX="93.0" layoutY="320.0" mnemonicParsing="false" text="Add Genre" />
+      <MenuButton layoutX="493.0" layoutY="320.0" mnemonicParsing="false" text="Options">
+        <items>
+          <MenuItem mnemonicParsing="false" text="Update Rating" />
+          <MenuItem mnemonicParsing="false" text="Delete Movie" />
+        </items>
+      </MenuButton>
+   </children>
+</AnchorPane>
