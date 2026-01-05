@@ -1,5 +1,6 @@
 package dk.easv.pmcexam.GUI.Controllers;
 
+// Java imports
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
