@@ -7,6 +7,7 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
 
@@ -30,5 +31,6 @@
           <MenuItem mnemonicParsing="false" text="Delete Movie" />
         </items>
       </MenuButton>
+      <TextField layoutX="524.0" layoutY="14.0" promptText="Search" />
    </children>
 </AnchorPane>
