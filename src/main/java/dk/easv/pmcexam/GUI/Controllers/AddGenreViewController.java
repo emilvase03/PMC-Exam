@@ -1,4 +1,4 @@
 package dk.easv.pmcexam.GUI.Controllers;
 
-public class UpdateRatingController {
+public class AddGenreViewController {
 }

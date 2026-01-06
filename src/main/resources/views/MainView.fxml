@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="381.0" prefWidth="745.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="dk.easv.pmcexam.GUI.Controllers.MainController">
+            fx:controller="dk.easv.pmcexam.GUI.Controllers.MainViewController">
    <children>
       <TableView fx:id="movieList" layoutX="410.0" layoutY="74.0" prefHeight="218.0" prefWidth="264.0">
         <columns>
