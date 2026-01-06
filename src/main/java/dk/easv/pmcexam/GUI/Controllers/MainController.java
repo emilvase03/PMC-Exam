@@ -29,4 +29,8 @@ public class MainController {
     @FXML
     private void onBtnClickDeleteMovie(ActionEvent actionEvent) {
     }
+
+    @FXML
+    private void onBtnClickDeleteGenre(ActionEvent actionEvent) {
+    }
 }
