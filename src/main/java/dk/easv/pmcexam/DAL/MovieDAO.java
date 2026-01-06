@@ -77,7 +77,7 @@ public class MovieDAO implements IMovieDataAccess
 
     @Override
     public void updateMovie(Movie movie) throws Exception {
-        String sql = "UPDATE dbo.songs SET title = ?, [Personal Rating] = ?, [IMDB Rating], WHERE id = ?";
+        String sql = "UPDATE dbo.moives SET title = ?, [Personal Rating] = ?, [IMDB Rating], WHERE id = ?";
 
         try (Connection conn = databaseConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -92,7 +92,7 @@ public class MovieDAO implements IMovieDataAccess
     }
 
     @Override
-    public void deleteSong(Movie movie) throws Exception {
+    public void deleteMovie(Movie movie) throws Exception {
         String sql = "DELETE FROM movies WHERE id = ?;";
 
         try (Connection conn = databaseConnector.getConnection();
