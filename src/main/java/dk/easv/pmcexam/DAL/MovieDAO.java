@@ -21,7 +21,7 @@ public class MovieDAO implements IMovieDataAccess
     public List<Movie> getAllMovies() throws Exception {
         ArrayList<Movie> allMovies = new ArrayList<>();
 
-        String sql = "SELECT * FROM moives;";
+        String sql = "SELECT * FROM movies;";
         try (Connection conn = databaseConnector.getConnection();//try with resources.The connection should be closed after so it is in () with try.
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -37,10 +37,15 @@ public class MovieDAO implements IMovieDataAccess
                 float personalRating = rs.getFloat("Personal Rating");
                 float imdbRating = rs.getFloat("IMDB Rating");
                 String filePath = rs.getString("FilePath");
-                LocalDate date = rs.getDate("LastViewed").toLocalDate();
+                Date date = rs.getDate("LastViewed");
 
-                Movie moive = new Movie(id, title, personalRating, imdbRating, filePath, date);
-                allMovies.add(moive);
+                if (date != null) {
+                    Movie movie = new Movie(id, title, personalRating, imdbRating, filePath, date.toLocalDate());
+                    allMovies.add(movie);
+                } else {
+                    Movie movie = new Movie(id, title, personalRating, imdbRating, filePath);
+                    allMovies.add(movie);
+                }
             }
             return allMovies;
         }
