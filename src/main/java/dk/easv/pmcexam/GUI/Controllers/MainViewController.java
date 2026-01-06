@@ -4,7 +4,7 @@ package dk.easv.pmcexam.GUI.Controllers;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
-public class MainController {
+public class MainViewController {
     @FXML
     private Label welcomeText;
 
