@@ -34,11 +34,12 @@ public class MovieDAO implements IMovieDataAccess
                 //Map DB row to Movie object
                 int id = rs.getInt("Id");
                 String title = rs.getString("Title");
-                float rating = rs.getFloat("Rating");
+                float personalRating = rs.getFloat("Personal Rating");
+                float imdbRating = rs.getFloat("IMDB Rating");
                 String filePath = rs.getString("FilePath");
                 LocalDate date = rs.getDate("LastViewed").toLocalDate();
 
-                Movie moive = new Movie(id, title, rating, filePath, date);
+                Movie moive = new Movie(id, title, personalRating, imdbRating, filePath, date);
                 allMovies.add(moive);
             }
             return allMovies;
@@ -46,7 +47,7 @@ public class MovieDAO implements IMovieDataAccess
     }
     @Override
     public Movie createMovie(Movie newMovie) throws Exception {
-        String sql = "INSERT INTO dbo.movies (title, rating) VALUES (?,?,?);";
+        String sql = "INSERT INTO dbo.movies (Title, [Personal Rating], FilePath, LastViewed, [IMDB Rating]) VALUES (?,?,?,?,?);";
 
         // try-with-resources makes sure we close db connection etc.
         try (Connection conn = databaseConnector.getConnection()) {
@@ -54,7 +55,10 @@ public class MovieDAO implements IMovieDataAccess
 
             // bind parameters
             stmt.setString   (1, newMovie.getTitle());
-            stmt.setFloat(2, newMovie.getRating());
+            stmt.setFloat(2, newMovie.getPersonalRating());
+            stmt.setString(3, newMovie.getFilePath());
+            stmt.setDate(4, Date.valueOf(newMovie.getLastViewed()));
+            stmt.setFloat(5, newMovie.getImdbRating());
 
             stmt.executeUpdate();
 
@@ -65,7 +69,7 @@ public class MovieDAO implements IMovieDataAccess
                 id = rs.getInt(1);
             }
 
-            Movie createdMovie = new Movie(id, newMovie.getTitle(), newMovie.getRating(), newMovie.getFilePath(), newMovie.getLastViewed());
+            Movie createdMovie = new Movie(id, newMovie.getTitle(), newMovie.getPersonalRating(), newMovie.getImdbRating(), newMovie.getFilePath(), newMovie.getLastViewed());
             return createdMovie;
         }
     }
@@ -73,14 +77,15 @@ public class MovieDAO implements IMovieDataAccess
 
     @Override
     public void updateMovie(Movie movie) throws Exception {
-        String sql = "UPDATE dbo.songs SET title = ?, rating = ?, WHERE id = ?";
+        String sql = "UPDATE dbo.songs SET title = ?, [Personal Rating] = ?, [IMDB Rating], WHERE id = ?";
 
         try (Connection conn = databaseConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             // bind parameters
             stmt.setString   (1, movie.getTitle());
-            stmt.setFloat(2, movie.getRating());
-            stmt.setInt(3, movie.getId());
+            stmt.setFloat(2, movie.getPersonalRating());
+            stmt.setFloat(3, movie.getImdbRating());
+            stmt.setInt(4, movie.getId());
 
             stmt.executeUpdate();
         }

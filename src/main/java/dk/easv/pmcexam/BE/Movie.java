@@ -6,16 +6,18 @@ import java.util.Date;
 public class Movie {
     private int id = -1;
     private String title;
-    private float rating = -1;
+    private float personalRating = -1;
+    private float imdbRating = -1;
     //private String[] genres; // <---- HEY! look at this :)
     private String filePath;
     private LocalDate lastViewed;
 
 
-    public Movie(int id, String title, float rating, String filePath, LocalDate lastViewed) {
+    public Movie(int id, String title, float personalRating, float imdbRating, String filePath, LocalDate lastViewed) {
         setId(id);
         setTitle(title);
-        setRating(rating);
+        setPersonalRating(personalRating);
+
         setFilePath(filePath);
         setLastViewed(lastViewed);
     }
@@ -36,12 +38,20 @@ public class Movie {
         return title;
     }
 
-    private void setRating(float rating) {
+    private void setPersonalRating(float rating) {
         if (rating != -1)
-            this.rating = rating;
+            this.personalRating = rating;
     }
-    public float getRating() {
-        return rating;
+    public float getPersonalRating() {
+        return personalRating;
+    }
+
+    private void setImdbRating(float rating) {
+        if (rating != -1)
+            this.imdbRating = rating;
+    }
+    public float getImdbRating() {
+        return imdbRating;
     }
 
     private void setFilePath(String filePath) {
