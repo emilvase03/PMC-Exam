@@ -14,5 +14,5 @@ public interface IMovieDataAccess {
 
     public void updateMovie(Movie movie) throws Exception;
 
-    public void deleteSong(Movie movie) throws Exception;
+    public void deleteMovie(Movie movie) throws Exception;
 }
