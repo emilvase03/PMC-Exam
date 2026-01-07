@@ -46,14 +46,11 @@ public class ValidationHelper {
         }
     }
 
-    /**
-     * Validates a file path exists and is accessible
-     */
     public static boolean isValidFilePath(String filePath) {
         if (isNullOrEmpty(filePath)) {
             return false;
         }
-        java.io.File file = new java.io.File(filePath);
-        return file.exists() && file.isFile();
+        String lower = filePath.toLowerCase();
+        return lower.endsWith(".mp4") || lower.endsWith(".mpeg4");
     }
 }
