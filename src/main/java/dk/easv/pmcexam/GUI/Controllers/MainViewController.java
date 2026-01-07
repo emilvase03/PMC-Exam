@@ -116,10 +116,6 @@ public class MainViewController implements Initializable {
 
     @FXML
     private void onBtnClickDeleteMovie(ActionEvent actionEvent) {
-    }
-
-    @FXML
-    private void onBtnClickDeleteMovie(ActionEvent actionEvent) {
         Movie selectedMovie = movieList.getSelectionModel().getSelectedItem();
 
         if (selectedMovie == null) {
@@ -137,6 +133,9 @@ public class MainViewController implements Initializable {
             } catch (Exception e) {
                 AlertHelper.showError("Error", "Failed to delete movie: " + e.getMessage());
             }
+        }
+    }
+
     private void onBtnClickAddGenre(ActionEvent actionEvent) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AddGenreView.fxml"));
