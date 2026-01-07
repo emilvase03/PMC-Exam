@@ -12,7 +12,6 @@ public class MovieManager {
 
     private IMovieDataAccess iMovieDataAccess;
 
-
     public MovieManager() throws Exception {
          iMovieDataAccess = new MovieDAO();
     }

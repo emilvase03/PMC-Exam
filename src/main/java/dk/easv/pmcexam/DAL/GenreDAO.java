@@ -1,6 +1,7 @@
-package dk.easv.pmcexam.DAL.DB;
+package dk.easv.pmcexam.DAL;
 
 import dk.easv.pmcexam.BE.Genre;
+import dk.easv.pmcexam.DAL.DB.DBConnector;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -45,7 +46,7 @@ public class GenreDAO implements IGenreDataAccess
 
     @Override
     public Genre createGenre(Genre newGenre) throws Exception {
-        String sql = "INSERT INTO dbo.genres (name) VALUES (?);";
+        String sql = "INSERT INTO genres (name) VALUES (?);";
 
         // try-with-resources makes sure we close db connection etc.
         try (Connection conn = databaseConnector.getConnection()) {
@@ -72,7 +73,7 @@ public class GenreDAO implements IGenreDataAccess
 
     @Override
     public void updateGenre(Genre genre) throws Exception {
-        String sql = "UPDATE dbo.genres SET name = ?,  WHERE id = ?";
+        String sql = "UPDATE genres SET name = ?,  WHERE id = ?";
 
         try (Connection conn = databaseConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -86,7 +87,7 @@ public class GenreDAO implements IGenreDataAccess
 
     @Override
     public void deleteGenre(Genre genre) throws Exception {
-        String sql = "DELETE FROM movies WHERE id = ?;";
+        String sql = "DELETE FROM genres WHERE id = ?;";
 
         try (Connection conn = databaseConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
