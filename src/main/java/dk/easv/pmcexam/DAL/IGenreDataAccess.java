@@ -2,7 +2,6 @@ package dk.easv.pmcexam.DAL;
 
 import dk.easv.pmcexam.BE.Genre;
 
-
 import java.util.List;
 
 public interface IGenreDataAccess {
