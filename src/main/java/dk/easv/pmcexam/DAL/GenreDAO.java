@@ -46,7 +46,7 @@ public class GenreDAO implements IGenreDataAccess
 
     @Override
     public Genre createGenre(Genre newGenre) throws Exception {
-        String sql = "INSERT INTO dbo.genres (name) VALUES (?);";
+        String sql = "INSERT INTO genres (name) VALUES (?);";
 
         // try-with-resources makes sure we close db connection etc.
         try (Connection conn = databaseConnector.getConnection()) {

@@ -4,7 +4,7 @@ package dk.easv.pmcexam.GUI.Controllers;
 import dk.easv.pmcexam.BE.Genre;
 import dk.easv.pmcexam.BE.Movie;
 import dk.easv.pmcexam.GUI.Models.GenreModel;
-import dk.easv.pmcexam.GUI.Models.MainModel;
+import dk.easv.pmcexam.GUI.Models.MovieModel;
 
 // Java imports
 import dk.easv.pmcexam.GUI.Utils.AlertHelper;
@@ -19,13 +19,12 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class MainViewController implements Initializable {
 
-    private MainModel mainModel;
+    private MovieModel movieModel;
     private GenreModel genreModel;
 
     @FXML
@@ -59,7 +58,7 @@ public class MainViewController implements Initializable {
 
     public MainViewController() {
         try {
-            mainModel = MainModel.getInstance();
+            movieModel = MovieModel.getInstance();
             genreModel = GenreModel.getInstance();
         } catch (Exception e) {
             AlertHelper.showException("Error", "Failed to get instances", e);
@@ -80,7 +79,7 @@ public class MainViewController implements Initializable {
         colIMDBRating.setCellValueFactory(new PropertyValueFactory<>("imdbRating"));
         colTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
         colGenre.setCellValueFactory(new PropertyValueFactory<>("genre"));
-        movieList.setItems(mainModel.getObservableMovies());
+        movieList.setItems(movieModel.getObservableMovies());
 
         colGenreId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colGenreName.setCellValueFactory(new PropertyValueFactory<>("name"));
