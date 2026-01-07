@@ -8,19 +8,19 @@ import dk.easv.pmcexam.BLL.MovieManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-public class MainModel {
-    private static MainModel instance;
+public class MovieModel {
+    private static MovieModel instance;
     private MovieManager movieManager = new MovieManager();
     private ObservableList<Movie> moviesToBeViewed;
 
-    private MainModel() throws Exception {
+    private MovieModel() throws Exception {
         moviesToBeViewed = FXCollections.observableArrayList();
         moviesToBeViewed.addAll(movieManager.getAllMovies());
     }
 
-    public static MainModel getInstance() throws Exception {
+    public static MovieModel getInstance() throws Exception {
         if (instance == null) {
-            instance = new MainModel();
+            instance = new MovieModel();
         }
         return instance;
     }
