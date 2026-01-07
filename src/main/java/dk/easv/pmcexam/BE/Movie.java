@@ -31,6 +31,15 @@ public class Movie {
         setFilePath(filePath);
     }
 
+    // For creating new Movie object without ID
+    public Movie(String title, float personalRating, float imdbRating, String genre, String filePath) {
+        setTitle(title);
+        setPersonalRating(personalRating);
+        setImdbRating(imdbRating);
+
+        setFilePath(filePath);
+    }
+
     private void setId(int id) {
         if (id != -1)
             this.id = id;

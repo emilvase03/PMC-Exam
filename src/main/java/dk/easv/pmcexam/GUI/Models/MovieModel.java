@@ -40,4 +40,9 @@ public class MovieModel {
     public void deleteMovie(Movie movie) throws Exception {
         movieManager.deleteMovie(movie);
     }
+
+    public void refreshMovies() throws Exception {
+        moviesToBeViewed.clear();
+        moviesToBeViewed.addAll(movieManager.getAllMovies());
+    }
 }
