@@ -136,6 +136,7 @@ public class MainViewController implements Initializable {
         }
     }
 
+    @FXML
     private void onBtnClickAddGenre(ActionEvent actionEvent) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AddGenreView.fxml"));
