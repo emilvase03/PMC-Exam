@@ -1,6 +1,7 @@
-package dk.easv.pmcexam.DAL.DB;
+package dk.easv.pmcexam.DAL;
 
 import dk.easv.pmcexam.BE.Genre;
+import dk.easv.pmcexam.DAL.DB.DBConnector;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

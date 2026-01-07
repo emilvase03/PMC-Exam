@@ -1,4 +1,4 @@
-package dk.easv.pmcexam.DAL.DB;
+package dk.easv.pmcexam.DAL;
 
 import dk.easv.pmcexam.BE.Genre;
 
