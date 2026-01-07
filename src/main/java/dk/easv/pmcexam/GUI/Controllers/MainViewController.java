@@ -3,7 +3,7 @@ package dk.easv.pmcexam.GUI.Controllers;
 // Project imports
 import dk.easv.pmcexam.BE.Genre;
 import dk.easv.pmcexam.BE.Movie;
-import dk.easv.pmcexam.GUI.Models.MainModel;
+import dk.easv.pmcexam.GUI.Models.MovieModel;
 
 // Java imports
 import javafx.event.ActionEvent;
@@ -16,7 +16,7 @@ import java.util.ResourceBundle;
 
 public class MainViewController implements Initializable {
 
-    private MainModel mainModel;
+    private MovieModel movieModel;
 
     @FXML
     private TableView<Movie> movieList;
@@ -45,7 +45,7 @@ public class MainViewController implements Initializable {
 
     public MainViewController() {
         try {
-            mainModel = MainModel.getInstance();
+            movieModel = MovieModel.getInstance();
         } catch (Exception e) {
             // Display error to user
             throw new RuntimeException(e);
@@ -67,7 +67,7 @@ public class MainViewController implements Initializable {
         colIMDBRating.setCellValueFactory(new PropertyValueFactory<>("imdbRating"));
         colTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
         colGenre.setCellValueFactory(new PropertyValueFactory<>("genre"));
-        movieList.setItems(mainModel.getObservableMovies());
+        movieList.setItems(movieModel.getObservableMovies());
     }
 
     @FXML
