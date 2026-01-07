@@ -34,21 +34,18 @@ public class AddGenreViewController {
     private void onBtnClickSave(ActionEvent actionEvent) {
         String genreName = txtGenreName.getText();
 
-        // Validate input
         if (ValidationHelper.isNullOrEmpty(genreName)) {
             AlertHelper.showWarning("Validation Error", "Please enter a genre name.");
             return;
         }
 
         try {
-            // Create new genre
             Genre newGenre = new Genre(genreName);
             genreModel.createGenre(newGenre);
 
             genreAdded = true;
             AlertHelper.showInformation("Success", "Genre added successfully!");
 
-            // Close the window
             closeWindow();
         } catch (Exception e) {
             AlertHelper.showError("Error", "Failed to add genre: " + e.getMessage());
