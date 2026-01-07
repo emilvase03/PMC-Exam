@@ -66,6 +66,12 @@ public class AddMovieViewController {
             return;
         }
 
+        if (!ValidationHelper.isValidFilePath(filePath)) {
+            AlertHelper.showWarning("Validation Error", "Please only use .mp4 or .mpeg4 files.");
+            txtFilePath.requestFocus();
+            return;
+        }
+
         try {
             float personalRating = Float.parseFloat(personalRatingStr);
             float imdbRating = Float.parseFloat(imdbRatingStr);
