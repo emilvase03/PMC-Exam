@@ -8,6 +8,7 @@ import dk.easv.pmcexam.GUI.Models.MovieModel;
 
 // Java imports
 import dk.easv.pmcexam.GUI.Utils.AlertHelper;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -88,6 +89,25 @@ public class MainViewController implements Initializable {
 
     @FXML
     private void onBtnClickAddMovie(ActionEvent actionEvent) {
+
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/addMovieView.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+            Stage stage = new Stage();
+            stage.setTitle("New Movie");
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.showAndWait();
+
+            AddMovieViewController controller = fxmlLoader.getController();
+            if (controller.isMovieAdded()) {
+                movieModel.refreshMovies();
+                selectAndScrollToLastItem(movieList, movieModel.getObservableMovies());
+            }
+        } catch (Exception e) {
+            AlertHelper.showError("Error", "Failed to open Add Movie window: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -99,6 +119,24 @@ public class MainViewController implements Initializable {
     }
 
     @FXML
+    private void onBtnClickDeleteMovie(ActionEvent actionEvent) {
+        Movie selectedMovie = movieList.getSelectionModel().getSelectedItem();
+
+        if (selectedMovie == null) {
+            AlertHelper.showWarning("No Selection", "Please select a movie to delete.");
+            return;
+        }
+
+        boolean confirmed = AlertHelper.showConfirmation("Delete Movie", "Are you sure you want to delete '" + selectedMovie.getTitle() + "'?");
+
+        if (confirmed) {
+            try {
+                movieModel.deleteMovie(selectedMovie);
+                movieModel.getObservableMovies().remove(selectedMovie);
+                AlertHelper.showInformation("Success", "Movie deleted succesfully!");
+            } catch (Exception e) {
+                AlertHelper.showError("Error", "Failed to delete movie: " + e.getMessage());
+            }
     private void onBtnClickAddGenre(ActionEvent actionEvent) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AddGenreView.fxml"));
@@ -144,6 +182,14 @@ public class MainViewController implements Initializable {
             } catch (Exception e) {
                 AlertHelper.showError("Error", "Failed to delete genre: " + e.getMessage());
             }
+        }
+    }
+
+    private <T> void selectAndScrollToLastItem(TableView<T> table, ObservableList<T> items) {
+        int newIndex = items.size() - 1;
+        if (newIndex >= 0) {
+            table.getSelectionModel().select(newIndex);
+            table.scrollTo(newIndex);
         }
     }
 }
