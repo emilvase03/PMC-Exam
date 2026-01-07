@@ -52,7 +52,7 @@ public class MovieDAO implements IMovieDataAccess
     }
     @Override
     public Movie createMovie(Movie newMovie) throws Exception {
-        String sql = "INSERT INTO dbo.movies (Title, PersonalRating, FilePath, IMDBRating) VALUES (?,?,?,?);";
+        String sql = "INSERT INTO movies (Title, PersonalRating, FilePath, IMDBRating) VALUES (?,?,?,?);";
 
         // try-with-resources makes sure we close db connection etc.
         try (Connection conn = databaseConnector.getConnection()) {
@@ -81,7 +81,7 @@ public class MovieDAO implements IMovieDataAccess
 
     @Override
     public void updateMovie(Movie movie) throws Exception {
-        String sql = "UPDATE dbo.moives SET title = ?, PersonalRating = ?, IMDBRating, WHERE id = ?";
+        String sql = "UPDATE moives SET title = ?, PersonalRating = ?, IMDBRating, WHERE id = ?";
 
         try (Connection conn = databaseConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
