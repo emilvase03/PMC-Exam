@@ -1,7 +1,7 @@
 package dk.easv.pmcexam.BE;
 
+// Java imports
 import java.time.LocalDate;
-import java.util.Date;
 
 public class Movie {
     private int id = -1;
@@ -20,6 +20,15 @@ public class Movie {
 
         setFilePath(filePath);
         setLastViewed(lastViewed);
+    }
+
+    public Movie(int id, String title, float personalRating, float imdbRating, String filePath) {
+        setId(id);
+        setTitle(title);
+        setPersonalRating(personalRating);
+        setImdbRating(imdbRating);
+
+        setFilePath(filePath);
     }
 
     private void setId(int id) {
