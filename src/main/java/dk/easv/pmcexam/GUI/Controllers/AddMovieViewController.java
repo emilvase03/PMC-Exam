@@ -8,7 +8,10 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
+import java.io.File;
 
 public class AddMovieViewController {
     private boolean movieAdded;
@@ -91,11 +94,24 @@ public class AddMovieViewController {
 
     @FXML
     private void onBtnChoose(ActionEvent actionEvent) {
+        javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Video Files (*.mp4, *.mpeg4)", "*.mp4", "*.mpeg4");
+        fileChooser.getExtensionFilters().add(extFilter);
+
+        File selectedFile = fileChooser.showOpenDialog(txtFilePath.getScene().getWindow());
+
+        if (selectedFile != null) {
+            String filePath = selectedFile.getAbsolutePath();
+            txtFilePath.setText(filePath);
+        }
     }
 
     @FXML
     private void onBtnCancel(ActionEvent actionEvent) {
-
+        closeWindow();
     }
 
     public boolean isMovieAdded() {
