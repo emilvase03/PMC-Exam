@@ -11,6 +11,8 @@ import dk.easv.pmcexam.GUI.Utils.AlertHelper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -76,7 +78,14 @@ public class MainViewController implements Initializable {
         } catch (Exception e) {
             AlertHelper.showException("Error", "Failed to setup tables", e);
         }
-    }
+        setupSearch();
+
+
+
+
+        }
+
+
 
     private void setupTables() throws Exception {
         colPersonalRating.setCellValueFactory(new PropertyValueFactory<>("personalRating"));
@@ -94,6 +103,50 @@ public class MainViewController implements Initializable {
         colGenreId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colGenreName.setCellValueFactory(new PropertyValueFactory<>("name"));
         genreList.setItems(genreModel.getObservableGenres());
+    }
+    private void setupSearch(){
+        // data from the model
+        ObservableList<Movie> baseList = null;
+        try {
+            baseList = movieModel.getObservableMovies();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
+        FilteredList<Movie> filtered = new FilteredList<>(baseList, m -> true);
+
+        //  Listen to search input
+        searchMovie.textProperty().addListener((obs, oldValue, newValue) -> {
+            final String query = (newValue == null) ? "" : newValue.trim().toLowerCase();
+
+            filtered.setPredicate(movie -> {
+                // Show all if query is empty
+                if (query.isEmpty()) return true;
+
+
+                String title = movie.getTitle();
+                if (title != null && title.toLowerCase().contains(query)) return true;
+
+                //  String genre = movie.getGenre();
+                //   if (genre != null && genre.toLowerCase().contains(query)) return true;
+
+                String imbdStr = Float.toString(movie.getImdbRating());
+                if (imbdStr.contains(query)) return true;
+
+
+
+                return false;
+            });
+        });
+
+
+        SortedList<Movie> sorted = new SortedList<>(filtered);
+        sorted.comparatorProperty().bind(movieList.comparatorProperty());
+
+
+        movieList.setItems(sorted);
+
     }
 
     @FXML
