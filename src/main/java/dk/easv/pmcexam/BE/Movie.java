@@ -2,13 +2,14 @@ package dk.easv.pmcexam.BE;
 
 // Java imports
 import java.time.LocalDate;
+import java.util.List;
 
 public class Movie {
     private int id = -1;
     private String title;
     private float personalRating = -1;
     private float imdbRating = -1;
-    //private String[] genres; // <---- HEY! look at this :)
+    private List<String> genres;
     private String filePath;
     private LocalDate lastViewed;
 
@@ -32,12 +33,13 @@ public class Movie {
     }
 
     // For creating new Movie object without ID
-    public Movie(String title, float personalRating, float imdbRating, String genre, String filePath) {
+    public Movie(String title, float personalRating, float imdbRating, List<String> genre, String filePath) {
         setTitle(title);
         setPersonalRating(personalRating);
         setImdbRating(imdbRating);
 
         setFilePath(filePath);
+        setGenres(genre);
     }
 
     private void setId(int id) {
@@ -88,14 +90,18 @@ public class Movie {
         return lastViewed;
     }
 
-//    private void addGenres(String[] genre) {
-//        this.genres = genre;
-//    }
-//    public String[] getGenres() {
-//        return genres;
-//    }
-//    public String getGenresAsString() {
-//        return genres.toString().replace("[","").replace("]","");
-//    }
+    public List<String> getGenres() {
+        return genres;
+    }
+    public void setGenres(List<String> genre) {
+        this.genres = genre;
+    }
+
+    public String getGenresAsString() {
+        if (genres == null || genres.isEmpty()) {
+            return "";
+        }
+        return String.join(", ", genres);
+    }
 
 }

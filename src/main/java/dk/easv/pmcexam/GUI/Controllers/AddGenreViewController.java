@@ -1,9 +1,12 @@
 package dk.easv.pmcexam.GUI.Controllers;
 
+// Project imports
 import dk.easv.pmcexam.BE.Genre;
 import dk.easv.pmcexam.GUI.Models.GenreModel;
 import dk.easv.pmcexam.GUI.Utils.AlertHelper;
 import dk.easv.pmcexam.GUI.Utils.ValidationHelper;
+
+// Java imports
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
