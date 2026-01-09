@@ -75,15 +75,11 @@ public class MainViewController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         try {
             setupTables();
+            setupSearch();
         } catch (Exception e) {
-            AlertHelper.showException("Error", "Failed to setup tables", e);
+            AlertHelper.showException("Error", "Failed to initialize setups.", e);
         }
-        setupSearch();
-
-
-
-
-        }
+    }
 
 
 
@@ -104,49 +100,46 @@ public class MainViewController implements Initializable {
         colGenreName.setCellValueFactory(new PropertyValueFactory<>("name"));
         genreList.setItems(genreModel.getObservableGenres());
     }
-    private void setupSearch(){
-        // data from the model
-        ObservableList<Movie> baseList = null;
+
+    private void setupSearch() {
         try {
-            baseList = movieModel.getObservableMovies();
+            ObservableList<Movie> movieBase = movieModel.getObservableMovies();
+            ObservableList<Genre> genreBase = genreModel.getObservableGenres();
+
+            FilteredList<Movie> filteredMovies = new FilteredList<>(movieBase, m -> true);
+            FilteredList<Genre> filteredGenres = new FilteredList<>(genreBase, g -> true);
+
+            SortedList<Movie> sortedMovies = new SortedList<>(filteredMovies);
+            sortedMovies.comparatorProperty().bind(movieList.comparatorProperty());
+            movieList.setItems(sortedMovies);
+
+            SortedList<Genre> sortedGenres = new SortedList<>(filteredGenres);
+            sortedGenres.comparatorProperty().bind(genreList.comparatorProperty());
+            genreList.setItems(sortedGenres);
+
+            searchMovie.textProperty().addListener((obs, oldVal, newVal) -> {
+                String query = newVal == null ? "" : newVal.trim().toLowerCase();
+
+                filteredMovies.setPredicate(movie ->
+                        query.isEmpty()
+                                || (movie.getTitle() != null &&
+                                movie.getTitle().toLowerCase().contains(query))
+                                || (movie.getGenresAsString() != null &&
+                                movie.getGenresAsString().toLowerCase().contains(query))
+                                || String.valueOf(movie.getImdbRating()).contains(query)
+                                || String.valueOf(movie.getPersonalRating()).contains(query)
+                );
+
+                filteredGenres.setPredicate(genre ->
+                        query.isEmpty()
+                                || (genre.getName() != null &&
+                                genre.getName().toLowerCase().contains(query))
+                );
+            });
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
-        FilteredList<Movie> filtered = new FilteredList<>(baseList, m -> true);
-
-        //  Listen to search input
-        searchMovie.textProperty().addListener((obs, oldValue, newValue) -> {
-            final String query = (newValue == null) ? "" : newValue.trim().toLowerCase();
-
-            filtered.setPredicate(movie -> {
-                // Show all if query is empty
-                if (query.isEmpty()) return true;
-
-
-                String title = movie.getTitle();
-                if (title != null && title.toLowerCase().contains(query)) return true;
-
-                //  String genre = movie.getGenre();
-                //   if (genre != null && genre.toLowerCase().contains(query)) return true;
-
-                String imbdStr = Float.toString(movie.getImdbRating());
-                if (imbdStr.contains(query)) return true;
-
-
-
-                return false;
-            });
-        });
-
-
-        SortedList<Movie> sorted = new SortedList<>(filtered);
-        sorted.comparatorProperty().bind(movieList.comparatorProperty());
-
-
-        movieList.setItems(sorted);
-
     }
 
     @FXML
