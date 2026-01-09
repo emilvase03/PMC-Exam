@@ -88,6 +88,7 @@ public class Movie {
         return lastViewed;
     }
 
+
 //    private void addGenres(String[] genre) {
 //        this.genres = genre;
 //    }
