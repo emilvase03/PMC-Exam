@@ -10,26 +10,30 @@ import java.util.List;
 
 public class GenreManager {
 
-    private IGenreDataAccess IGenreDataAccess;
+    private IGenreDataAccess iGenreDataAccess;
 
     public GenreManager() throws Exception {
-        IGenreDataAccess = new GenreDAO();
+        iGenreDataAccess = new GenreDAO();
     }
 
     public List<Genre> getAllGenres() throws Exception {
-        return IGenreDataAccess.getAllGenres();
+        return iGenreDataAccess.getAllGenres();
+    }
+
+    public List<String> getAllGenreNames() throws Exception {
+        return iGenreDataAccess.getAllGenreNames();
     }
 
     public Genre createGenre(Genre newGenre) throws Exception {
-        return IGenreDataAccess.createGenre(newGenre);
+        return iGenreDataAccess.createGenre(newGenre);
     }
 
     public void updateGenre(Genre genre) throws Exception {
-        IGenreDataAccess.updateGenre(genre);
+        iGenreDataAccess.updateGenre(genre);
     }
 
     public void deleteGenre(Genre genre) throws Exception {
-        IGenreDataAccess.deleteGenre(genre);
+        iGenreDataAccess.deleteGenre(genre);
     }
 
 }

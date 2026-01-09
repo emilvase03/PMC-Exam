@@ -6,7 +6,6 @@ import dk.easv.pmcexam.DAL.DB.DBConnector;
 
 // Java imports
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,24 +13,20 @@ public class MovieDAO implements IMovieDataAccess
 {
     private DBConnector databaseConnector;
 
-    public MovieDAO() throws Exception {//introduces the path to database,where we get connection from
+    public MovieDAO() throws Exception {
         databaseConnector = new DBConnector();
     }
 
     public List<Movie> getAllMovies() throws Exception {
         ArrayList<Movie> allMovies = new ArrayList<>();
-
         String sql = "SELECT * FROM movies;";
-        try (Connection conn = databaseConnector.getConnection();//try with resources.The connection should be closed after so it is in () with try.
+
+        try (Connection conn = databaseConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-
             ResultSet rs = stmt.executeQuery();
 
-            // Loop through rows from the database result set
             while (rs.next()) {
 
-                //Map DB row to Movie object
                 int id = rs.getInt("Id");
                 String title = rs.getString("Title");
                 float personalRating = rs.getFloat("PersonalRating");
@@ -39,20 +34,26 @@ public class MovieDAO implements IMovieDataAccess
                 String filePath = rs.getString("FilePath");
                 Date date = rs.getDate("LastViewed");
 
+                Movie movie;
                 if (date != null) {
-                    Movie movie = new Movie(id, title, personalRating, imdbRating, filePath, date.toLocalDate());
-                    allMovies.add(movie);
+                    movie = new Movie(id, title, personalRating, imdbRating, filePath, date.toLocalDate());
                 } else {
-                    Movie movie = new Movie(id, title, personalRating, imdbRating, filePath);
-                    allMovies.add(movie);
+                    movie = new Movie(id, title, personalRating, imdbRating, filePath);
                 }
+
+                List<String> genres = getGenres(movie);
+                movie.setGenres(genres);
+
+                allMovies.add(movie);
             }
+
             return allMovies;
         }
     }
+
     @Override
     public Movie createMovie(Movie newMovie) throws Exception {
-        String sql = "INSERT INTO movies (Title, PersonalRating, FilePath, IMDBRating) VALUES (?,?,?,?);";
+        String sql = "INSERT INTO movies (Title, PersonalRating, FilePath, IMDBRating, Genre) VALUES (?,?,?,?,?);";
 
         // try-with-resources makes sure we close db connection etc.
         try (Connection conn = databaseConnector.getConnection()) {
@@ -63,6 +64,7 @@ public class MovieDAO implements IMovieDataAccess
             stmt.setFloat(2, newMovie.getPersonalRating());
             stmt.setString(3, newMovie.getFilePath());
             stmt.setFloat(4, newMovie.getImdbRating());
+            stmt.setString(5, newMovie.getGenresAsString());
 
             stmt.executeUpdate();
 
@@ -106,4 +108,27 @@ public class MovieDAO implements IMovieDataAccess
             stmt.executeUpdate();
         }
     }
+
+    private List<String> getGenres(Movie movie) throws Exception {
+        List<String> genreNames = new ArrayList<>();
+
+        // Join query - get all genre names in one go
+        String sql = "SELECT g.name " +
+                "FROM genres g " +
+                "INNER JOIN genremovie gm ON g.id = gm.genreid " +
+                "WHERE gm.movieid = ?";
+
+        try (Connection conn = databaseConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, movie.getId());
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                genreNames.add(rs.getString("name"));
+            }
+        }
+        System.out.println(genreNames);
+        return genreNames;
+    }
+
 }

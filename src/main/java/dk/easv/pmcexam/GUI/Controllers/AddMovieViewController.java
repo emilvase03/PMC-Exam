@@ -1,27 +1,40 @@
 package dk.easv.pmcexam.GUI.Controllers;
 
+// Project imports
 import dk.easv.pmcexam.BE.Movie;
+import dk.easv.pmcexam.GUI.Models.GenreModel;
 import dk.easv.pmcexam.GUI.Models.MovieModel;
 import dk.easv.pmcexam.GUI.Utils.ValidationHelper;
 import dk.easv.pmcexam.GUI.Utils.AlertHelper;
+
+// Java imports
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableSet;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.fxml.Initializable;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 
-public class AddMovieViewController {
+public class AddMovieViewController implements Initializable {
     private boolean movieAdded;
     private MovieModel movieModel = MovieModel.getInstance();
+    private GenreModel genreModel = GenreModel.getInstance();
+    private ObservableSet<String> selectedGenres = FXCollections.observableSet();
 
     @FXML private TextField txtTitle;
     @FXML private TextField txtPersonalRating;
     @FXML private TextField txtIMDBRating;
-    @FXML private TextField txtGenre;
     @FXML private TextField txtFilePath;
+    @FXML private ComboBox<String> cbGenre;
     @FXML private Button btnSave;
     @FXML private Button btnChoose;
     @FXML private Button btnCancel;
@@ -29,12 +42,106 @@ public class AddMovieViewController {
     public AddMovieViewController() throws Exception {
     }
 
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        setupGenreComboBox();
+    }
+
+    private void setupGenreComboBox() {
+        try {
+            // Load all available genres from database
+            List<String> allGenres = genreModel.getAllGenreNames();
+            cbGenre.getItems().addAll(allGenres);
+            cbGenre.setPromptText("Select genres...");
+
+            // Setup button cell to show selected genres
+            cbGenre.setButtonCell(new ListCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || selectedGenres.isEmpty()) {
+                        setText("Select genres...");
+                    } else {
+                        setText(String.join(", ", selectedGenres));
+                    }
+                }
+            });
+
+            // Setup multi-selection ComboBox
+            cbGenre.setCellFactory(listView -> {
+                ListCell<String> cell = new ListCell<>() {
+                    private final CheckBox checkBox = new CheckBox();
+
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty || item == null) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            checkBox.setText(item);
+                            checkBox.setSelected(selectedGenres.contains(item));
+                            setGraphic(checkBox);
+                            setText(null);
+                        }
+                    }
+                };
+
+                // Use addEventFilter to intercept the event before it reaches the default handler
+                cell.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+                    if (!cell.isEmpty()) {
+                        String item = cell.getItem();
+                        CheckBox checkBox = (CheckBox) cell.getGraphic();
+
+                        if (selectedGenres.contains(item)) {
+                            selectedGenres.remove(item);
+                            checkBox.setSelected(false);
+                        } else {
+                            selectedGenres.add(item);
+                            checkBox.setSelected(true);
+                        }
+
+                        // Update button cell display
+                        cbGenre.setButtonCell(new ListCell<>() {
+                            @Override
+                            protected void updateItem(String item, boolean empty) {
+                                super.updateItem(item, empty);
+                                if (selectedGenres.isEmpty()) {
+                                    setText("Select genres...");
+                                } else {
+                                    setText(String.join(", ", selectedGenres));
+                                }
+                            }
+                        });
+
+                        event.consume(); // Prevent default selection behavior
+                    }
+                });
+
+                return cell;
+            });
+
+            // Prevent ComboBox from selecting a single value
+            cbGenre.valueProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal != null) {
+                    cbGenre.setValue(null);
+                }
+            });
+
+            // Clear the selection model to prevent IndexOutOfBoundsException
+            cbGenre.getSelectionModel().clearSelection();
+
+        } catch (Exception e) {
+            AlertHelper.showError("Error", "Failed to load genres: " + e.getMessage());
+        }
+    }
+
     @FXML
     private void onBtnSave(ActionEvent actionEvent) {
         String title = txtTitle.getText();
         String personalRatingStr = txtPersonalRating.getText();
         String imdbRatingStr = txtIMDBRating.getText();
-        String genre = txtGenre.getText();
+        List<String> genres = new ArrayList<>(selectedGenres);
         String filePath = txtFilePath.getText();
 
         if (ValidationHelper.isNullOrEmpty(title)) {
@@ -57,9 +164,9 @@ public class AddMovieViewController {
             return;
         }
 
-        if (ValidationHelper.isNullOrEmpty(genre)) {
-            AlertHelper.showWarning("Validation Error", "Please enter a genre.");
-            txtGenre.requestFocus();
+        if (genres.isEmpty()) {
+            AlertHelper.showWarning("Validation Error", "Please select at least one genre.");
+            cbGenre.requestFocus();
             return;
         }
 
@@ -79,7 +186,7 @@ public class AddMovieViewController {
             float personalRating = Float.parseFloat(personalRatingStr);
             float imdbRating = Float.parseFloat(imdbRatingStr);
 
-            Movie newMovie = new Movie(title, personalRating, imdbRating, genre, filePath);
+            Movie newMovie = new Movie(title, personalRating, imdbRating, genres, filePath);
             movieModel.createMovie(newMovie);
 
             movieAdded = true;
@@ -88,8 +195,8 @@ public class AddMovieViewController {
 
         } catch (Exception e) {
             AlertHelper.showError("Error", "Failed to add movie: " + e.getMessage());
+            System.out.println(e.getMessage());
         }
-
     }
 
     @FXML

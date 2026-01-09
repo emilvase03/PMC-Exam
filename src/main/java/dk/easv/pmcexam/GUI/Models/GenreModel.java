@@ -8,6 +8,8 @@ import dk.easv.pmcexam.BLL.GenreManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.util.List;
+
 public class GenreModel {
     private static GenreModel instance;
     private GenreManager genreManager = new GenreManager();
@@ -27,6 +29,10 @@ public class GenreModel {
 
     public ObservableList<Genre> getObservableGenres() throws Exception {
         return genresToBeViewed;
+    }
+
+    public List<String> getAllGenreNames() throws Exception {
+        return genreManager.getAllGenreNames();
     }
 
     public Genre createGenre(Genre newGenre) throws Exception {

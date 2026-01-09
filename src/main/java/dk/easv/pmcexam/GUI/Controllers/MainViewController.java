@@ -8,6 +8,8 @@ import dk.easv.pmcexam.GUI.Models.MovieModel;
 
 // Java imports
 import dk.easv.pmcexam.GUI.Utils.AlertHelper;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -21,6 +23,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -88,7 +91,13 @@ public class MainViewController implements Initializable {
         colPersonalRating.setCellValueFactory(new PropertyValueFactory<>("personalRating"));
         colIMDBRating.setCellValueFactory(new PropertyValueFactory<>("imdbRating"));
         colTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
-        colGenre.setCellValueFactory(new PropertyValueFactory<>("genre"));
+        colGenre.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Movie, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<Movie, String> param) {
+                return new SimpleStringProperty(param.getValue().getGenresAsString());
+            }
+        });
+
         movieList.setItems(movieModel.getObservableMovies());
 
         colGenreId.setCellValueFactory(new PropertyValueFactory<>("id"));

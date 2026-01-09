@@ -1,8 +1,10 @@
 package dk.easv.pmcexam.DAL;
 
+// Project imports
 import dk.easv.pmcexam.BE.Genre;
 import dk.easv.pmcexam.DAL.DB.DBConnector;
 
+// Java imports
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,6 +43,23 @@ public class GenreDAO implements IGenreDataAccess
             }
             return allGenres;
         }
+    }
+
+    @Override
+    public List<String> getAllGenreNames() throws Exception {
+        List<String> genreNames = new ArrayList<>();
+        String sql = "SELECT name FROM genres ORDER BY name";
+
+        try (Connection conn = databaseConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                genreNames.add(rs.getString("name"));
+            }
+        }
+
+        return genreNames;
     }
 
 
