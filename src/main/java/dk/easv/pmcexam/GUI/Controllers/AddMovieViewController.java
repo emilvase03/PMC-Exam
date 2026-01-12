@@ -145,7 +145,13 @@ public class AddMovieViewController implements Initializable {
     private void onBtnChoose(ActionEvent actionEvent) {
         javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
 
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        File videosDir = new File("src/main/resources/videos");
+
+        if (!videosDir.exists()) {
+            videosDir = new File(System.getProperty("user.home"));
+        }
+
+        fileChooser.setInitialDirectory(videosDir);
 
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
                 "Video Files (*.mp4, *.mpeg4)", "*.mp4", "*.mpeg4");
@@ -155,17 +161,14 @@ public class AddMovieViewController implements Initializable {
 
         if (selectedFile != null) {
             try {
-                // Target folder inside project (development only)
                 Path projectVideosDir = Paths.get("src/main/resources/videos");
                 if (!Files.exists(projectVideosDir)) {
                     Files.createDirectories(projectVideosDir);  // may throw IOException
                 }
 
-                // Copy file
                 Path target = projectVideosDir.resolve(selectedFile.getName());
                 Files.copy(selectedFile.toPath(), target, StandardCopyOption.REPLACE_EXISTING); // may throw IOException
 
-                // Save relative path
                 Path relativePath = projectVideosDir.relativize(target);
                 txtFilePath.setText("videos/" + relativePath.toString().replace("\\", "/"));
 
