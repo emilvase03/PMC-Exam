@@ -15,4 +15,6 @@ public interface IMovieDataAccess {
     public void updateMovie(Movie movie) throws Exception;
 
     public void deleteMovie(Movie movie) throws Exception;
+
+   public void updatePersonalRating(int movieId, float rating) throws Exception;
 }
