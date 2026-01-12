@@ -101,7 +101,7 @@ public class Movie {
         return filePath;
     }
 
-    private void setLastViewed(LocalDate lastViewed) {
+    public void setLastViewed(LocalDate lastViewed) {
         if (lastViewed != null) {
             this.lastViewed = lastViewed;
         }
