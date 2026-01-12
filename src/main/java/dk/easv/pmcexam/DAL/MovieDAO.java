@@ -131,4 +131,24 @@ public class MovieDAO implements IMovieDataAccess
         return genreNames;
     }
 
+
+    public void updatePersonalRating(int movieId, float rating) throws SQLException {
+
+        String sql = "UPDATE movies SET PersonalRating = ? WHERE id = ?";
+
+        try (Connection conn = databaseConnector.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setFloat(1, rating);
+            ps.setInt(2, movieId);
+
+            int updated = ps.executeUpdate();
+            if (updated == 0) {
+                throw new SQLException("No movie found with id=" + movieId);
+            }
+        }
+    }
+
 }
+
+
+

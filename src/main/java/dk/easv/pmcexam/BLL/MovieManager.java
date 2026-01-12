@@ -32,4 +32,9 @@ public class MovieManager {
         iMovieDataAccess.deleteMovie(movie);
     }
 
+    public void updatePersonalRating(int movieId, float rating) throws Exception {
+        iMovieDataAccess.updatePersonalRating(movieId, rating);
+    }
+
+
 }
