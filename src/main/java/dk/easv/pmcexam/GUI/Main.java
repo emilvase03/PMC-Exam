@@ -1,6 +1,7 @@
 package dk.easv.pmcexam.GUI;
 
 // Java imports
+import dk.easv.pmcexam.GUI.Controllers.MainViewController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,7 +12,12 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("/views/MainView.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/MainView.fxml"));
+        Parent root = loader.load();
+
+        MainViewController controller = loader.getController();
+        controller.setHostServices(getHostServices());
+
         primaryStage.setTitle("PMC");
         primaryStage.setResizable(false);
         primaryStage.setScene(new Scene(root));
