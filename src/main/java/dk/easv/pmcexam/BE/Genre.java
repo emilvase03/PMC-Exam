@@ -19,8 +19,9 @@ public class Genre {
     }
 
     public void setId(int id) {
-        if (id != -1)
+        if (id != -1) {
             this.id = id;
+        }
     }
 
     public String getName() {
@@ -28,8 +29,9 @@ public class Genre {
     }
 
     public void setName(String name) {
-        if (name != null && !name.isBlank())
+        if (name != null && !name.isBlank()) {
             this.name = name;
+        }
     }
 
     @Override
