@@ -13,16 +13,16 @@ public class MovieDateChecker {
 
 
     public static boolean isAnyMoviesOld(List<Movie> movies) {
-        if (getMoviesOlderThanTwoDays(movies).isEmpty())
+        if (getMoviesOlderThanTwoYears(movies).isEmpty())
             return false;
         return true;
     }
 
-    private static List<Movie> getMoviesOlderThanTwoDays(List<Movie> movies) {
+    private static List<Movie> getMoviesOlderThanTwoYears(List<Movie> movies) {
         LocalDate twoYearsAgo = LocalDate.now().minusYears(2);
 
         for (Movie movie : movies) {
-            if (movie.getLastViewed() != null && movie.getLastViewed().isBefore(twoYearsAgo)) {
+            if (movie.getLastViewed() != null && movie.getLastViewed().isBefore(twoYearsAgo) && movie.getPersonalRating() < 6.0f) {
                 oldMovies.add(movie);
             }
         }
