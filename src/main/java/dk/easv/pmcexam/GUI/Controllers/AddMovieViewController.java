@@ -16,7 +16,12 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -142,14 +147,31 @@ public class AddMovieViewController implements Initializable {
 
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
 
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Video Files (*.mp4, *.mpeg4)", "*.mp4", "*.mpeg4");
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
+                "Video Files (*.mp4, *.mpeg4)", "*.mp4", "*.mpeg4");
         fileChooser.getExtensionFilters().add(extFilter);
 
         File selectedFile = fileChooser.showOpenDialog(txtFilePath.getScene().getWindow());
 
         if (selectedFile != null) {
-            String filePath = selectedFile.getAbsolutePath();
-            txtFilePath.setText(filePath);
+            try {
+                // Target folder inside project (development only)
+                Path projectVideosDir = Paths.get("src/main/resources/videos");
+                if (!Files.exists(projectVideosDir)) {
+                    Files.createDirectories(projectVideosDir);  // may throw IOException
+                }
+
+                // Copy file
+                Path target = projectVideosDir.resolve(selectedFile.getName());
+                Files.copy(selectedFile.toPath(), target, StandardCopyOption.REPLACE_EXISTING); // may throw IOException
+
+                // Save relative path
+                Path relativePath = projectVideosDir.relativize(target);
+                txtFilePath.setText("videos/" + relativePath.toString().replace("\\", "/"));
+
+            } catch (IOException e) {
+                AlertHelper.showError("Error", "Failed to add videos: " + e.getMessage());
+            }
         }
     }
 
