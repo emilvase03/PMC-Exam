@@ -53,4 +53,12 @@ public class MovieModel {
         moviesToBeViewed.clear();
         moviesToBeViewed.addAll(movieManager.getAllMovies());
     }
+
+
+    public void updatePersonalRating(Movie movie, float newRating) throws Exception {
+        if (movie == null) throw new IllegalArgumentException("movie cannot be null");
+        movieManager.updatePersonalRating(movie.getId(), newRating);
+        refreshMovies();
+    }
+
 }

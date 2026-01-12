@@ -7,6 +7,7 @@ import dk.easv.pmcexam.GUI.Models.GenreModel;
 import dk.easv.pmcexam.GUI.Models.MovieModel;
 import dk.easv.pmcexam.GUI.Utils.AlertHelper;
 import dk.easv.pmcexam.GUI.Utils.MovieDateChecker;
+import dk.easv.pmcexam.GUI.Utils.ValidationHelper;
 import dk.easv.pmcexam.GUI.Utils.VideoPlayer;
 
 // Java imports
@@ -31,6 +32,7 @@ import javafx.util.Callback;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MainViewController implements Initializable {
@@ -178,31 +180,58 @@ public class MainViewController implements Initializable {
         }
     }
 
-    @FXML
-    private void onBtnClickUpdateRating(ActionEvent actionEvent) {
-    }
+   @FXML
+ private void onBtnClickUpdateRating(ActionEvent actionEvent) {
 
-    @FXML
-    private void onBtnClickDeleteMovie(ActionEvent actionEvent) {
-        Movie selectedMovie = movieList.getSelectionModel().getSelectedItem();
-
-        if (selectedMovie == null) {
-            AlertHelper.showWarning("No Selection", "Please select a movie to delete.");
-            return;
-        }
-
-        boolean confirmed = AlertHelper.showConfirmation("Delete Movie", "Are you sure you want to delete '" + selectedMovie.getTitle() + "'?");
-
-        if (confirmed) {
-            try {
-                movieModel.deleteMovie(selectedMovie);
-                movieModel.getObservableMovies().remove(selectedMovie);
-                AlertHelper.showInformation("Success", "Movie deleted succesfully!");
-            } catch (Exception e) {
-                AlertHelper.showError("Error", "Failed to delete movie: " + e.getMessage());
+            Movie selected = movieList.getSelectionModel().getSelectedItem();
+            if (selected == null) {
+                AlertHelper.showWarning("No Selection", "Please select a movie to update its rating.");
+                return;
             }
-        }
-    }
+
+            TextInputDialog dialog = new TextInputDialog(String.valueOf(selected.getPersonalRating()));
+            dialog.setTitle("Update Personal Rating");
+            dialog.setHeaderText("Change rating for: " + selected.getTitle());
+            dialog.setContentText("Enter rating (0–10):");
+
+            Optional<String> result = dialog.showAndWait();
+            if (result.isEmpty()) return;
+
+            String input = result.get().trim();
+            if (!ValidationHelper.isValidRating(input)) {
+                AlertHelper.showError("Invalid Input", "Please enter a valid number between 0 and 10.");
+                return;
+            }
+
+            float newRating;
+            try {
+                newRating = Float.parseFloat(input);
+            } catch (NumberFormatException e) {
+                AlertHelper.showError("Invalid Input", "Please enter a numeric value.");
+                return;
+            }
+
+            try {
+                int keepId = selected.getId();
+                movieModel.updatePersonalRating(selected, newRating);
+
+                // Re-select the same movie in the refreshed list
+                ObservableList<Movie> list = movieModel.getObservableMovies();
+                for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i).getId() == keepId) {
+                        movieList.getSelectionModel().select(i);
+                        movieList.scrollTo(i);
+                        break;
+                    }
+                }
+
+                AlertHelper.showInformation("Success", "Personal rating updated.");
+            } catch (Exception e) {
+                AlertHelper.showError("Error", "Failed to update rating: " + e.getMessage());
+            }
+       }
+
+
 
     @FXML
     private void onBtnClickAddGenre(ActionEvent actionEvent) {
@@ -227,6 +256,29 @@ public class MainViewController implements Initializable {
         } catch (Exception e) {
             AlertHelper.showError("Error", "Failed to open Add Genre window: " + e.getMessage());
         }
+    }
+    @FXML
+    private void onBtnClickDeleteMovie(ActionEvent actionEvent){
+        Movie selectedMovie = movieList.getSelectionModel().getSelectedItem();
+
+        if (selectedMovie == null) {
+            AlertHelper.showWarning("No Selection", "Please select a movie to delete.");
+            return;
+        }
+
+        boolean confirmed = AlertHelper.showConfirmation("Delete Movie", "Are you sure you want to delete '" + selectedMovie.getTitle() + "'?");
+
+        if (confirmed) {
+            try {
+                movieModel.deleteMovie(selectedMovie);
+                movieModel.getObservableMovies().remove(selectedMovie);
+                AlertHelper.showInformation("Success", "Movie deleted succesfully!");
+            } catch (Exception e) {
+                AlertHelper.showError("Error", "Failed to delete movie: " + e.getMessage());
+            }
+        }
+
+
     }
 
     @FXML
