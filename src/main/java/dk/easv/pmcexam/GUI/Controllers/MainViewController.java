@@ -5,11 +5,12 @@ import dk.easv.pmcexam.BE.Genre;
 import dk.easv.pmcexam.BE.Movie;
 import dk.easv.pmcexam.GUI.Models.GenreModel;
 import dk.easv.pmcexam.GUI.Models.MovieModel;
-
-// Java imports
 import dk.easv.pmcexam.GUI.Utils.AlertHelper;
+import dk.easv.pmcexam.GUI.Utils.MovieDateChecker;
 import dk.easv.pmcexam.GUI.Utils.ValidationHelper;
 import dk.easv.pmcexam.GUI.Utils.VideoPlayer;
+
+// Java imports
 import javafx.application.HostServices;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
@@ -29,6 +30,8 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 
 import java.net.URL;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -81,6 +84,7 @@ public class MainViewController implements Initializable {
         try {
             setupTables();
             setupSearch();
+            checkLastviewDates(movieList.getItems());
         } catch (Exception e) {
             AlertHelper.showException("Error", "Failed to initialize setups.", e);
         }
@@ -144,6 +148,12 @@ public class MainViewController implements Initializable {
 
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void checkLastviewDates(List<Movie> movies) {
+        if(MovieDateChecker.isAnyMoviesOld(movies)) {
+            AlertHelper.showWarning("Alert", "You havn't watch the below mentioned movie(s) in two years or more." + "\n\n" + MovieDateChecker.getOldMoviesAsString());
         }
     }
 
@@ -312,6 +322,12 @@ public class MainViewController implements Initializable {
             return;
         }
 
+        selectedMovie.setLastViewed(LocalDate.now());
+        try {
+            movieModel.updateMovie(selectedMovie);
+        } catch (Exception e) {
+            AlertHelper.showError("Error", "Unable to set new 'last viewed date' for this movie.");
+        }
         VideoPlayer.playVideo(hostServices, selectedMovie.getFilePath());
     }
 

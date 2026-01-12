@@ -117,7 +117,7 @@ public class MovieDAO implements IMovieDataAccess
 
     @Override
     public void updateMovie(Movie movie) throws Exception {
-        String sql = "UPDATE movies SET title = ?, PersonalRating = ?, IMDBRating = ? WHERE id = ?";
+        String sql = "UPDATE movies SET title = ?, PersonalRating = ?, IMDBRating = ?, LastViewed = ? WHERE id = ?";
 
         try (Connection conn = databaseConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -125,7 +125,8 @@ public class MovieDAO implements IMovieDataAccess
             stmt.setString(1, movie.getTitle());
             stmt.setFloat(2, movie.getPersonalRating());
             stmt.setFloat(3, movie.getImdbRating());
-            stmt.setInt(4, movie.getId());
+            stmt.setDate(4, Date.valueOf(movie.getLastViewed()));
+            stmt.setInt(5, movie.getId());
 
             stmt.executeUpdate();
 
