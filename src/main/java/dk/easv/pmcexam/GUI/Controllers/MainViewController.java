@@ -9,6 +9,8 @@ import dk.easv.pmcexam.GUI.Models.MovieModel;
 // Java imports
 import dk.easv.pmcexam.GUI.Utils.AlertHelper;
 import dk.easv.pmcexam.GUI.Utils.ValidationHelper;
+import dk.easv.pmcexam.GUI.Utils.VideoPlayer;
+import javafx.application.HostServices;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -34,6 +36,7 @@ public class MainViewController implements Initializable {
 
     private MovieModel movieModel;
     private GenreModel genreModel;
+    private HostServices hostServices;
 
     @FXML
     private TableView<Movie> movieList;
@@ -279,5 +282,22 @@ public class MainViewController implements Initializable {
             table.getSelectionModel().select(newIndex);
             table.scrollTo(newIndex);
         }
+    }
+
+    @FXML
+    private void onBtnClickPlay(ActionEvent actionEvent) {
+        Movie selectedMovie = movieList.getSelectionModel().getSelectedItem();
+
+        if(selectedMovie == null) {
+            AlertHelper.showWarning("No Movie Selected", "Please select a movie to play");
+            return;
+        }
+
+        VideoPlayer.playVideo(hostServices, selectedMovie.getFilePath());
+    }
+
+    public void setHostServices(HostServices hostServices) {
+        this.hostServices = hostServices;
+
     }
 }

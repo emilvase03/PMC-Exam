@@ -30,10 +30,10 @@ public class GenreDAO implements IGenreDataAccess
 
             ResultSet rs = stmt.executeQuery();
 
-            // Loop through rows from the database result set
+            // loop through rows from the database result set
             while (rs.next()) {
 
-                //Map DB row to Genre object
+                // map DB row to Genre object
                 int id = rs.getInt("Id");
                 String name = rs.getString("Name");
 
@@ -92,12 +92,12 @@ public class GenreDAO implements IGenreDataAccess
 
     @Override
     public void updateGenre(Genre genre) throws Exception {
-        String sql = "UPDATE genres SET name = ?,  WHERE id = ?";
+        String sql = "UPDATE genres SET name = ? WHERE id = ?";
 
         try (Connection conn = databaseConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             // bind parameters
-            stmt.setString   (1, genre.getName());
+            stmt.setString(1, genre.getName());
             stmt.setInt(2, genre.getId());
 
             stmt.executeUpdate();

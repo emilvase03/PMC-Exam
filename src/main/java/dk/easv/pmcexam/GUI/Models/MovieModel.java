@@ -30,15 +30,23 @@ public class MovieModel {
     }
 
     public Movie createMovie(Movie newMovie) throws Exception {
-        return movieManager.createMovie(newMovie);
+        Movie createdMovie = movieManager.createMovie(newMovie);
+        moviesToBeViewed.add(createdMovie); // Add this line!
+        return createdMovie;
     }
 
     public void updateMovie(Movie movie) throws Exception {
         movieManager.updateMovie(movie);
+        // refresh the specific movie in the list
+        int index = moviesToBeViewed.indexOf(movie);
+        if (index >= 0) {
+            moviesToBeViewed.set(index, movie);
+        }
     }
 
     public void deleteMovie(Movie movie) throws Exception {
         movieManager.deleteMovie(movie);
+        moviesToBeViewed.remove(movie);
     }
 
     public void refreshMovies() throws Exception {
@@ -53,4 +61,5 @@ public class MovieModel {
         refreshMovies();
     }
 
+}
 }

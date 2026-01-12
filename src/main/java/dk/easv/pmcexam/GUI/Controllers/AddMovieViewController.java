@@ -8,33 +8,37 @@ import dk.easv.pmcexam.GUI.Utils.ValidationHelper;
 import dk.easv.pmcexam.GUI.Utils.AlertHelper;
 
 // Java imports
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableSet;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class AddMovieViewController implements Initializable {
     private boolean movieAdded;
     private MovieModel movieModel = MovieModel.getInstance();
     private GenreModel genreModel = GenreModel.getInstance();
-    private ObservableSet<String> selectedGenres = FXCollections.observableSet();
+    private Map<String, CheckBox> genreCheckBoxes = new HashMap<>();
 
     @FXML private TextField txtTitle;
     @FXML private TextField txtPersonalRating;
     @FXML private TextField txtIMDBRating;
     @FXML private TextField txtFilePath;
-    @FXML private ComboBox<String> cbGenre;
+    @FXML private ListView<CheckBox> lvGenres;
     @FXML private Button btnSave;
     @FXML private Button btnChoose;
     @FXML private Button btnCancel;
@@ -44,96 +48,34 @@ public class AddMovieViewController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        setupGenreComboBox();
+        setupGenreListView();
     }
 
-    private void setupGenreComboBox() {
+    private void setupGenreListView() {
         try {
             // Load all available genres from database
             List<String> allGenres = genreModel.getAllGenreNames();
-            cbGenre.getItems().addAll(allGenres);
-            cbGenre.setPromptText("Select genres...");
 
-            // Setup button cell to show selected genres
-            cbGenre.setButtonCell(new ListCell<>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || selectedGenres.isEmpty()) {
-                        setText("Select genres...");
-                    } else {
-                        setText(String.join(", ", selectedGenres));
-                    }
-                }
-            });
-
-            // Setup multi-selection ComboBox
-            cbGenre.setCellFactory(listView -> {
-                ListCell<String> cell = new ListCell<>() {
-                    private final CheckBox checkBox = new CheckBox();
-
-                    @Override
-                    protected void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty || item == null) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            checkBox.setText(item);
-                            checkBox.setSelected(selectedGenres.contains(item));
-                            setGraphic(checkBox);
-                            setText(null);
-                        }
-                    }
-                };
-
-                // Use addEventFilter to intercept the event before it reaches the default handler
-                cell.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
-                    if (!cell.isEmpty()) {
-                        String item = cell.getItem();
-                        CheckBox checkBox = (CheckBox) cell.getGraphic();
-
-                        if (selectedGenres.contains(item)) {
-                            selectedGenres.remove(item);
-                            checkBox.setSelected(false);
-                        } else {
-                            selectedGenres.add(item);
-                            checkBox.setSelected(true);
-                        }
-
-                        // Update button cell display
-                        cbGenre.setButtonCell(new ListCell<>() {
-                            @Override
-                            protected void updateItem(String item, boolean empty) {
-                                super.updateItem(item, empty);
-                                if (selectedGenres.isEmpty()) {
-                                    setText("Select genres...");
-                                } else {
-                                    setText(String.join(", ", selectedGenres));
-                                }
-                            }
-                        });
-
-                        event.consume(); // Prevent default selection behavior
-                    }
-                });
-
-                return cell;
-            });
-
-            // Prevent ComboBox from selecting a single value
-            cbGenre.valueProperty().addListener((obs, oldVal, newVal) -> {
-                if (newVal != null) {
-                    cbGenre.setValue(null);
-                }
-            });
-
-            // Clear the selection model to prevent IndexOutOfBoundsException
-            cbGenre.getSelectionModel().clearSelection();
+            // Create a checkbox for each genre
+            for (String genreName : allGenres) {
+                CheckBox checkBox = new CheckBox(genreName);
+                genreCheckBoxes.put(genreName, checkBox);
+                lvGenres.getItems().add(checkBox);
+            }
 
         } catch (Exception e) {
             AlertHelper.showError("Error", "Failed to load genres: " + e.getMessage());
         }
+    }
+
+    private List<String> getSelectedGenres() {
+        List<String> selectedGenres = new ArrayList<>();
+        for (Map.Entry<String, CheckBox> entry : genreCheckBoxes.entrySet()) {
+            if (entry.getValue().isSelected()) {
+                selectedGenres.add(entry.getKey());
+            }
+        }
+        return selectedGenres;
     }
 
     @FXML
@@ -141,7 +83,7 @@ public class AddMovieViewController implements Initializable {
         String title = txtTitle.getText();
         String personalRatingStr = txtPersonalRating.getText();
         String imdbRatingStr = txtIMDBRating.getText();
-        List<String> genres = new ArrayList<>(selectedGenres);
+        List<String> genres = getSelectedGenres();
         String filePath = txtFilePath.getText();
 
         if (ValidationHelper.isNullOrEmpty(title)) {
@@ -166,7 +108,7 @@ public class AddMovieViewController implements Initializable {
 
         if (genres.isEmpty()) {
             AlertHelper.showWarning("Validation Error", "Please select at least one genre.");
-            cbGenre.requestFocus();
+            lvGenres.requestFocus();
             return;
         }
 
@@ -195,7 +137,7 @@ public class AddMovieViewController implements Initializable {
 
         } catch (Exception e) {
             AlertHelper.showError("Error", "Failed to add movie: " + e.getMessage());
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -203,16 +145,36 @@ public class AddMovieViewController implements Initializable {
     private void onBtnChoose(ActionEvent actionEvent) {
         javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
 
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        File videosDir = new File("src/main/resources/videos");
 
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Video Files (*.mp4, *.mpeg4)", "*.mp4", "*.mpeg4");
+        if (!videosDir.exists()) {
+            videosDir = new File(System.getProperty("user.home"));
+        }
+
+        fileChooser.setInitialDirectory(videosDir);
+
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
+                "Video Files (*.mp4, *.mpeg4)", "*.mp4", "*.mpeg4");
         fileChooser.getExtensionFilters().add(extFilter);
 
         File selectedFile = fileChooser.showOpenDialog(txtFilePath.getScene().getWindow());
 
         if (selectedFile != null) {
-            String filePath = selectedFile.getAbsolutePath();
-            txtFilePath.setText(filePath);
+            try {
+                Path projectVideosDir = Paths.get("src/main/resources/videos");
+                if (!Files.exists(projectVideosDir)) {
+                    Files.createDirectories(projectVideosDir);  // may throw IOException
+                }
+
+                Path target = projectVideosDir.resolve(selectedFile.getName());
+                Files.copy(selectedFile.toPath(), target, StandardCopyOption.REPLACE_EXISTING); // may throw IOException
+
+                Path relativePath = projectVideosDir.relativize(target);
+                txtFilePath.setText("videos/" + relativePath.toString().replace("\\", "/"));
+
+            } catch (IOException e) {
+                AlertHelper.showError("Error", "Failed to add videos: " + e.getMessage());
+            }
         }
     }
 
