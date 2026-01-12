@@ -249,6 +249,25 @@ public class MainViewController implements Initializable {
     }
     @FXML
     private void onBtnClickDeleteMovie(ActionEvent actionEvent){
+        Movie selectedMovie = movieList.getSelectionModel().getSelectedItem();
+
+        if (selectedMovie == null) {
+            AlertHelper.showWarning("No Selection", "Please select a movie to delete.");
+            return;
+        }
+
+        boolean confirmed = AlertHelper.showConfirmation("Delete Movie", "Are you sure you want to delete '" + selectedMovie.getTitle() + "'?");
+
+        if (confirmed) {
+            try {
+                movieModel.deleteMovie(selectedMovie);
+                movieModel.getObservableMovies().remove(selectedMovie);
+                AlertHelper.showInformation("Success", "Movie deleted succesfully!");
+            } catch (Exception e) {
+                AlertHelper.showError("Error", "Failed to delete movie: " + e.getMessage());
+            }
+        }
+
 
     }
 
