@@ -40,6 +40,9 @@ public class MainViewController implements Initializable {
     private MovieModel movieModel;
     private GenreModel genreModel;
     private HostServices hostServices;
+    private FilteredList<Movie> filteredMovies;
+    private FilteredList<Genre> filteredGenres;
+    private Genre selectedGenreFilter = null;
 
     @FXML
     private TableView<Movie> movieList;
@@ -82,13 +85,12 @@ public class MainViewController implements Initializable {
         try {
             setupTables();
             setupSearch();
+            setupListeners();
             checkLastviewDates(movieList.getItems());
         } catch (Exception e) {
             AlertHelper.showException("Error", "Failed to initialize setups.", e);
         }
     }
-
-
 
     private void setupTables() throws Exception {
         colPersonalRating.setCellValueFactory(new PropertyValueFactory<>("personalRating"));
@@ -103,6 +105,12 @@ public class MainViewController implements Initializable {
 
         movieList.setItems(movieModel.getObservableMovies());
 
+        colGenreName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        genreList.setItems(genreModel.getObservableGenres());
+    }
+
+    private void setupListeners() {
+        // Double-click to play movie
         movieList.setRowFactory(tv -> {
             TableRow<Movie> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
@@ -114,8 +122,60 @@ public class MainViewController implements Initializable {
             return row;
         });
 
-        colGenreName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        genreList.setItems(genreModel.getObservableGenres());
+        // Track the last selected genre to enable toggle behavior
+        final Genre[] lastSelectedGenre = {null};
+
+        genreList.setOnMouseClicked(event -> {
+            Genre currentSelection = genreList.getSelectionModel().getSelectedItem();
+
+            if (currentSelection != null && currentSelection.equals(lastSelectedGenre[0])) {
+                // Clicking the same genre again - deselect it
+                genreList.getSelectionModel().clearSelection();
+                lastSelectedGenre[0] = null;
+                selectedGenreFilter = null;
+                updateFilters();
+            } else {
+                // New genre selected
+                lastSelectedGenre[0] = currentSelection;
+                selectedGenreFilter = currentSelection;
+                updateFilters();
+            }
+        });
+    }
+
+    private void updateFilters() {
+        String query = searchMovie.getText() == null ? "" : searchMovie.getText().trim().toLowerCase();
+
+        // Update movie filter
+        filteredMovies.setPredicate(movie -> {
+            // First check if movie matches the selected genre (if any)
+            boolean matchesGenre = selectedGenreFilter == null ||
+                    (movie.getGenresAsString() != null &&
+                            movie.getGenresAsString().toLowerCase().contains(selectedGenreFilter.getName().toLowerCase()));
+
+            if (!matchesGenre) {
+                return false;
+            }
+
+            // Then check if movie matches the search query
+            return query.isEmpty()
+                    || (movie.getTitle() != null && movie.getTitle().toLowerCase().contains(query))
+                    || (movie.getGenresAsString() != null && movie.getGenresAsString().toLowerCase().contains(query))
+                    || String.valueOf(movie.getImdbRating()).contains(query)
+                    || String.valueOf(movie.getPersonalRating()).contains(query);
+        });
+
+        // Update genre filter - only filter genres if NO genre is selected
+        if (selectedGenreFilter == null) {
+            filteredGenres.setPredicate(genre ->
+                    query.isEmpty()
+                            || (genre.getName() != null &&
+                            genre.getName().toLowerCase().contains(query))
+            );
+        } else {
+            // If a genre is selected, show all genres (don't filter genre table)
+            filteredGenres.setPredicate(genre -> true);
+        }
     }
 
     private void setupSearch() {
@@ -123,8 +183,8 @@ public class MainViewController implements Initializable {
             ObservableList<Movie> movieBase = movieModel.getObservableMovies();
             ObservableList<Genre> genreBase = genreModel.getObservableGenres();
 
-            FilteredList<Movie> filteredMovies = new FilteredList<>(movieBase, m -> true);
-            FilteredList<Genre> filteredGenres = new FilteredList<>(genreBase, g -> true);
+            filteredMovies = new FilteredList<>(movieBase, m -> true);
+            filteredGenres = new FilteredList<>(genreBase, g -> true);
 
             SortedList<Movie> sortedMovies = new SortedList<>(filteredMovies);
             sortedMovies.comparatorProperty().bind(movieList.comparatorProperty());
@@ -134,24 +194,9 @@ public class MainViewController implements Initializable {
             sortedGenres.comparatorProperty().bind(genreList.comparatorProperty());
             genreList.setItems(sortedGenres);
 
+            // Search text listener - updates both movie and genre filters
             searchMovie.textProperty().addListener((obs, oldVal, newVal) -> {
-                String query = newVal == null ? "" : newVal.trim().toLowerCase();
-
-                filteredMovies.setPredicate(movie ->
-                        query.isEmpty()
-                                || (movie.getTitle() != null &&
-                                movie.getTitle().toLowerCase().contains(query))
-                                || (movie.getGenresAsString() != null &&
-                                movie.getGenresAsString().toLowerCase().contains(query))
-                                || String.valueOf(movie.getImdbRating()).contains(query)
-                                || String.valueOf(movie.getPersonalRating()).contains(query)
-                );
-
-                filteredGenres.setPredicate(genre ->
-                        query.isEmpty()
-                                || (genre.getName() != null &&
-                                genre.getName().toLowerCase().contains(query))
-                );
+                updateFilters();
             });
 
         } catch (Exception e) {
@@ -161,13 +206,12 @@ public class MainViewController implements Initializable {
 
     private void checkLastviewDates(List<Movie> movies) {
         if(MovieDateChecker.isAnyMoviesOld(movies)) {
-            AlertHelper.showWarning("Alert", "You havn't watch the below mentioned movie(s) in two years or more." + "\n\n" + MovieDateChecker.getOldMoviesAsString());
+            AlertHelper.showWarning("Alert", "You haven't watch the below mentioned movie(s) in two years or more." + "\n\n" + MovieDateChecker.getOldMoviesAsString());
         }
     }
 
     @FXML
     private void onBtnClickAddMovie(ActionEvent actionEvent) {
-
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/addMovieView.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
@@ -188,58 +232,55 @@ public class MainViewController implements Initializable {
         }
     }
 
-   @FXML
- private void onBtnClickUpdateRating(ActionEvent actionEvent) {
+    @FXML
+    private void onBtnClickUpdateRating(ActionEvent actionEvent) {
+        Movie selected = movieList.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            AlertHelper.showWarning("No Selection", "Please select a movie to update its rating.");
+            return;
+        }
 
-            Movie selected = movieList.getSelectionModel().getSelectedItem();
-            if (selected == null) {
-                AlertHelper.showWarning("No Selection", "Please select a movie to update its rating.");
-                return;
-            }
+        TextInputDialog dialog = new TextInputDialog(String.valueOf(selected.getPersonalRating()));
+        dialog.setTitle("Update Personal Rating");
+        dialog.setHeaderText("Change rating for: " + selected.getTitle());
+        dialog.setContentText("Enter rating (0–10):");
 
-            TextInputDialog dialog = new TextInputDialog(String.valueOf(selected.getPersonalRating()));
-            dialog.setTitle("Update Personal Rating");
-            dialog.setHeaderText("Change rating for: " + selected.getTitle());
-            dialog.setContentText("Enter rating (0–10):");
+        Optional<String> result = dialog.showAndWait();
+        if (result.isEmpty()) return;
 
-            Optional<String> result = dialog.showAndWait();
-            if (result.isEmpty()) return;
+        String input = result.get().trim();
+        if (!ValidationHelper.isValidRating(input)) {
+            AlertHelper.showError("Invalid Input", "Please enter a valid number between 0 and 10.");
+            return;
+        }
 
-            String input = result.get().trim();
-            if (!ValidationHelper.isValidRating(input)) {
-                AlertHelper.showError("Invalid Input", "Please enter a valid number between 0 and 10.");
-                return;
-            }
+        float newRating;
+        try {
+            newRating = Float.parseFloat(input);
+        } catch (NumberFormatException e) {
+            AlertHelper.showError("Invalid Input", "Please enter a numeric value.");
+            return;
+        }
 
-            float newRating;
-            try {
-                newRating = Float.parseFloat(input);
-            } catch (NumberFormatException e) {
-                AlertHelper.showError("Invalid Input", "Please enter a numeric value.");
-                return;
-            }
+        try {
+            int keepId = selected.getId();
+            movieModel.updatePersonalRating(selected, newRating);
 
-            try {
-                int keepId = selected.getId();
-                movieModel.updatePersonalRating(selected, newRating);
-
-                // Re-select the same movie in the refreshed list
-                ObservableList<Movie> list = movieModel.getObservableMovies();
-                for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).getId() == keepId) {
-                        movieList.getSelectionModel().select(i);
-                        movieList.scrollTo(i);
-                        break;
-                    }
+            // Re-select the same movie in the refreshed list
+            ObservableList<Movie> list = movieModel.getObservableMovies();
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getId() == keepId) {
+                    movieList.getSelectionModel().select(i);
+                    movieList.scrollTo(i);
+                    break;
                 }
-
-                AlertHelper.showInformation("Success", "Personal rating updated.");
-            } catch (Exception e) {
-                AlertHelper.showError("Error", "Failed to update rating: " + e.getMessage());
             }
-       }
 
-
+            AlertHelper.showInformation("Success", "Personal rating updated.");
+        } catch (Exception e) {
+            AlertHelper.showError("Error", "Failed to update rating: " + e.getMessage());
+        }
+    }
 
     @FXML
     private void onBtnClickAddGenre(ActionEvent actionEvent) {
@@ -265,6 +306,7 @@ public class MainViewController implements Initializable {
             AlertHelper.showError("Error", "Failed to open Add Genre window: " + e.getMessage());
         }
     }
+
     @FXML
     private void onBtnClickDeleteMovie(ActionEvent actionEvent){
         Movie selectedMovie = movieList.getSelectionModel().getSelectedItem();
@@ -285,8 +327,6 @@ public class MainViewController implements Initializable {
                 AlertHelper.showError("Error", "Failed to delete movie: " + e.getMessage());
             }
         }
-
-
     }
 
     @FXML
@@ -341,6 +381,5 @@ public class MainViewController implements Initializable {
 
     public void setHostServices(HostServices hostServices) {
         this.hostServices = hostServices;
-
     }
 }
