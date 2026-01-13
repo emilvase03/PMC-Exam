@@ -102,7 +102,6 @@ public class MainViewController implements Initializable {
                 return new SimpleStringProperty(param.getValue().getGenresAsString());
             }
         });
-
         movieList.setItems(movieModel.getObservableMovies());
 
         colGenreName.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -110,7 +109,6 @@ public class MainViewController implements Initializable {
     }
 
     private void setupListeners() {
-        // Double-click to play movie
         movieList.setRowFactory(tv -> {
             TableRow<Movie> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
@@ -122,20 +120,18 @@ public class MainViewController implements Initializable {
             return row;
         });
 
-        // Track the last selected genre to enable toggle behavior
         final Genre[] lastSelectedGenre = {null};
 
         genreList.setOnMouseClicked(event -> {
             Genre currentSelection = genreList.getSelectionModel().getSelectedItem();
 
+            // toggle deselect
             if (currentSelection != null && currentSelection.equals(lastSelectedGenre[0])) {
-                // Clicking the same genre again - deselect it
                 genreList.getSelectionModel().clearSelection();
                 lastSelectedGenre[0] = null;
                 selectedGenreFilter = null;
                 updateFilters();
             } else {
-                // New genre selected
                 lastSelectedGenre[0] = currentSelection;
                 selectedGenreFilter = currentSelection;
                 updateFilters();
@@ -146,9 +142,7 @@ public class MainViewController implements Initializable {
     private void updateFilters() {
         String query = searchMovie.getText() == null ? "" : searchMovie.getText().trim().toLowerCase();
 
-        // Update movie filter
         filteredMovies.setPredicate(movie -> {
-            // First check if movie matches the selected genre (if any)
             boolean matchesGenre = selectedGenreFilter == null ||
                     (movie.getGenresAsString() != null &&
                             movie.getGenresAsString().toLowerCase().contains(selectedGenreFilter.getName().toLowerCase()));
@@ -157,7 +151,6 @@ public class MainViewController implements Initializable {
                 return false;
             }
 
-            // Then check if movie matches the search query
             return query.isEmpty()
                     || (movie.getTitle() != null && movie.getTitle().toLowerCase().contains(query))
                     || (movie.getGenresAsString() != null && movie.getGenresAsString().toLowerCase().contains(query))
@@ -165,7 +158,7 @@ public class MainViewController implements Initializable {
                     || String.valueOf(movie.getPersonalRating()).contains(query);
         });
 
-        // Update genre filter - only filter genres if NO genre is selected
+        // filter genres
         if (selectedGenreFilter == null) {
             filteredGenres.setPredicate(genre ->
                     query.isEmpty()
@@ -173,7 +166,7 @@ public class MainViewController implements Initializable {
                             genre.getName().toLowerCase().contains(query))
             );
         } else {
-            // If a genre is selected, show all genres (don't filter genre table)
+            // dont filter genres if genre is selected
             filteredGenres.setPredicate(genre -> true);
         }
     }
@@ -194,7 +187,6 @@ public class MainViewController implements Initializable {
             sortedGenres.comparatorProperty().bind(genreList.comparatorProperty());
             genreList.setItems(sortedGenres);
 
-            // Search text listener - updates both movie and genre filters
             searchMovie.textProperty().addListener((obs, oldVal, newVal) -> {
                 updateFilters();
             });
@@ -246,7 +238,8 @@ public class MainViewController implements Initializable {
         dialog.setContentText("Enter rating (0–10):");
 
         Optional<String> result = dialog.showAndWait();
-        if (result.isEmpty()) return;
+        if (result.isEmpty())
+            return;
 
         String input = result.get().trim();
         if (!ValidationHelper.isValidRating(input)) {
@@ -266,7 +259,7 @@ public class MainViewController implements Initializable {
             int keepId = selected.getId();
             movieModel.updatePersonalRating(selected, newRating);
 
-            // Re-select the same movie in the refreshed list
+            // re-select the same movie in the refreshed list
             ObservableList<Movie> list = movieModel.getObservableMovies();
             for (int i = 0; i < list.size(); i++) {
                 if (list.get(i).getId() == keepId) {
