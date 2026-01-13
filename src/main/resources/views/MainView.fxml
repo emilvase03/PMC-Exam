@@ -8,35 +8,41 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="381.0" prefWidth="745.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.pmcexam.GUI.Controllers.MainViewController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="603.0" prefWidth="926.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.pmcexam.GUI.Controllers.MainViewController">
     <children>
-        <TableView fx:id="movieList" layoutX="380.0" layoutY="74.0" prefHeight="218.0" prefWidth="294.0">
+        <TableView fx:id="movieList" layoutX="380.0" layoutY="115.0" prefHeight="355.0" prefWidth="518.0">
             <columns>
-                <TableColumn fx:id="colPersonalRating" prefWidth="37.60003662109375" text="Score" />
-                <TableColumn fx:id="colIMDBRating" prefWidth="37.60003662109375" text="IMDB" />
-                <TableColumn fx:id="colTitle" prefWidth="160.79998779296875" text="Title" />
-                <TableColumn fx:id="colGenre" prefWidth="62.39996337890625" text="Genre" />
+                <TableColumn fx:id="colPersonalRating" prefWidth="58.0" text="Score" />
+                <TableColumn fx:id="colIMDBRating" prefWidth="58.0" text="IMDB" />
+                <TableColumn fx:id="colTitle" prefWidth="222.0" text="Title" />
+                <TableColumn fx:id="colGenre" prefWidth="179.0" text="Genre" />
             </columns>
         </TableView>
-        <Label layoutX="93.0" layoutY="51.0" text="Genre" />
-        <Label layoutX="410.0" layoutY="51.0" text="Movies" />
-        <Button fx:id="addMovie" layoutX="380.0" layoutY="320.0" mnemonicParsing="false" onAction="#onBtnClickAddMovie" prefWidth="74.0" text="Add Movie" />
-        <Button fx:id="addGenre" layoutX="93.0" layoutY="320.0" mnemonicParsing="false" onAction="#onBtnClickAddGenre" prefWidth="74.0" text="Add Genre" />
-        <MenuButton layoutX="460.0" layoutY="320.0" mnemonicParsing="false" text="Options">
+        <Label layoutX="166.0" layoutY="88.0" text="Genre">
+         <font>
+            <Font name="System Bold" size="19.0" />
+         </font></Label>
+        <Label layoutX="607.0" layoutY="88.0" text="Movies">
+         <font>
+            <Font name="System Bold" size="19.0" />
+         </font></Label>
+        <Button fx:id="addMovie" layoutX="523.0" layoutY="531.0" mnemonicParsing="false" onAction="#onBtnClickAddMovie" prefWidth="74.0" text="Add Movie" />
+        <Button fx:id="addGenre" layoutX="110.0" layoutY="531.0" mnemonicParsing="false" onAction="#onBtnClickAddGenre" prefWidth="74.0" text="Add Genre" />
+        <MenuButton layoutX="603.0" layoutY="531.0" mnemonicParsing="false" text="Options">
             <items>
                 <MenuItem fx:id="updateRating" mnemonicParsing="false" onAction="#onBtnClickUpdateRating" text="Update Rating" />
                 <MenuItem fx:id="deleteMovie" mnemonicParsing="false" onAction="#onBtnClickDeleteMovie" text="Delete Movie" />
             </items>
         </MenuButton>
-        <TextField fx:id="searchMovie" layoutX="524.0" layoutY="14.0" promptText="Search" />
-        <Button fx:id="deleteGenre" layoutX="173.0" layoutY="320.0" mnemonicParsing="false" onAction="#onBtnClickDeleteGenre" text="Delete Genre" />
-      <TableView fx:id="genreList" layoutX="93.0" layoutY="74.0" prefHeight="218.0" prefWidth="200.0">
+        <TextField fx:id="searchMovie" layoutX="698.0" layoutY="27.0" prefHeight="25.0" prefWidth="200.0" promptText="Search" />
+        <Button fx:id="deleteGenre" layoutX="190.0" layoutY="531.0" mnemonicParsing="false" onAction="#onBtnClickDeleteGenre" text="Delete Genre" />
+      <TableView fx:id="genreList" layoutX="93.0" layoutY="117.0" prefHeight="355.0" prefWidth="200.0">
         <columns>
-          <TableColumn fx:id="colGenreId" prefWidth="37.0" text="Id" />
-          <TableColumn fx:id="colGenreName" prefWidth="162.0" text="Name" />
+          <TableColumn fx:id="colGenreName" prefWidth="199.0" text="Name" />
         </columns>
       </TableView>
-      <Button layoutX="540.0" layoutY="320.0" mnemonicParsing="false" onAction="#onBtnClickPlay" prefHeight="25.0" prefWidth="74.0" text="Play" />
+      <Button layoutX="683.0" layoutY="531.0" mnemonicParsing="false" onAction="#onBtnClickPlay" prefHeight="25.0" prefWidth="74.0" text="Play" />
     </children>
 </AnchorPane>

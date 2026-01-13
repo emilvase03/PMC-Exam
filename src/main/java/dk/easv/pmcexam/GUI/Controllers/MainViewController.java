@@ -66,8 +66,6 @@ public class MainViewController implements Initializable {
     @FXML
     private TableColumn colGenre;
     @FXML
-    private TableColumn colGenreId;
-    @FXML
     private TableColumn colGenreName;
 
     public MainViewController() {
@@ -105,7 +103,17 @@ public class MainViewController implements Initializable {
 
         movieList.setItems(movieModel.getObservableMovies());
 
-        colGenreId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        movieList.setRowFactory(tv -> {
+            TableRow<Movie> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    Movie movie = row.getItem();
+                    VideoPlayer.playVideo(hostServices, movie.getFilePath());
+                }
+            });
+            return row;
+        });
+
         colGenreName.setCellValueFactory(new PropertyValueFactory<>("name"));
         genreList.setItems(genreModel.getObservableGenres());
     }
